@@ -1,3 +1,5 @@
+🌐 🇺🇸 [English](README.md) · 🇧🇷 [Português](README.pt-BR.md) · 🇪🇸 [Español](README.es.md) · 🇫🇷 [Français](README.fr.md) · 🇩🇪 [Deutsch](README.de.md) · 🇮🇹 [Italiano](README.it.md) · 🇳🇱 [Nederlands](README.nl.md) · 🇵🇱 [Polski](README.pl.md) · 🇷🇺 [Русский](README.ru.md) · 🇺🇦 [Українська](README.uk.md) · 🇹🇷 [Türkçe](README.tr.md) · 🇸🇦 [العربية](README.ar.md) · 🇮🇳 [हिन्दी](README.hi.md) · 🇮🇩 [Bahasa Indonesia](README.id.md) · 🇹🇭 [ไทย](README.th.md) · 🇻🇳 [Tiếng Việt](README.vi.md) · 🇯🇵 [日本語](README.ja.md) · 🇰🇷 [한국어](README.ko.md) · 🇨🇳 [简体中文](README.zh-Hans.md) · 🇹🇼 [繁體中文](README.zh-Hant.md)
+
 # Correção do Código 43 da Radeon Pro 560 / 555 no MacBook Pro 2017 (A1707) — Windows 10/11 Boot Camp com Tela Interna Quebrada ou Removida (eDP), via Patch de VBIOS VFCT no OpenCore
 
 🇺🇸 **[Read in English](README.md)** · 📄 **[Artigo técnico (PT-BR)](docs/paper-pt-BR.md)** · 📄 **[Technical paper (EN)](docs/paper-en.md)**
