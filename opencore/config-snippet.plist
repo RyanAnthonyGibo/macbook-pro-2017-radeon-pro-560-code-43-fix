@@ -1,0 +1,24 @@
+<!-- OpenCore (tested 1.0.6) - merge into config.plist. Put VFCT-noeDP.aml in EFI/OC/ACPI/.
+     Author: Ryan Anthony Gibo. BACK UP config.plist FIRST. No Drivers/Booter/NVRAM changes needed. -->
+<key>ACPI</key>
+<dict>
+	<key>Add</key>
+	<array>
+		<dict>
+			<key>Comment</key><string>VFCT with eDP connector removed (A1707 Radeon Pro 560 Code 43 fix)</string>
+			<key>Enabled</key><true/>
+			<key>Path</key><string>VFCT-noeDP.aml</string>
+		</dict>
+	</array>
+	<key>Delete</key>
+	<array>
+		<dict>
+			<key>All</key><false/>
+			<key>Comment</key><string>Drop firmware VFCT (replaced by VFCT-noeDP.aml)</string>
+			<key>Enabled</key><true/>
+			<key>OemTableId</key><data></data>
+			<key>TableLength</key><integer>0</integer>
+			<key>TableSignature</key><data>VkZDVA==</data>
+		</dict>
+	</array>
+</dict>

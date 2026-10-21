@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "MacBook Pro 2017 (A1707) Radeon Pro 560 Code 43 Fix: removing the eDP panel from the VFCT VBIOS for Windows with a broken/removed internal display"
+authors:
+  - family-names: Gibo
+    given-names: Ryan Anthony
+    alias: RyanAnthonyGibo
+type: software
+license: MIT
+date-released: 2026-10-21
+repository-code: "https://github.com/RyanAnthonyGibo/macbook-pro-2017-radeon-pro-560-code-43-fix"
+keywords: [MacBook Pro 2017, A1707, Radeon Pro 560, Code 43, Boot Camp, OpenCore, VFCT, VBIOS, eDP, AMD]

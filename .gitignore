@@ -1,0 +1,6 @@
+# Never commit VBIOS / ACPI binaries (AMD/Apple copyright)
+*.dat
+*.bin
+*.aml
+*.rom
+*.etl
