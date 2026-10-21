@@ -6,7 +6,7 @@
 
 Seu **MacBook Pro 15" 2017 (A1707, MacBookPro14,3)** com **AMD Radeon Pro 560 ou Radeon Pro 555** mostra **"O Windows parou este dispositivo porque ele relatou problemas. (Código 43)"** no Gerenciador de Dispositivos? A **tela interna (LCD / painel eDP) está quebrada, trincada, desconectada ou foi removida**, e você usa o Mac **sem tela (headless) com monitor externo** (USB-C, Thunderbolt 3, HDMI, DisplayPort)? Então o **driver AMD (Boot Camp, Adrenalin)** falha porque a **VBIOS ainda declara o painel eDP interno**. Este repositório resolve: modifica a **tabela ACPI VFCT** (a cópia da VBIOS que o Windows lê) removendo o conector eDP, e injeta com o **OpenCore** (`ACPI > Delete + Add`). Resultado: Radeon Pro 560 funcionando com **4 GB de VRAM, DirectX 11/12 e aceleração** — adeus "Adaptador de Vídeo Básico da Microsoft".
 
-Palavras-chave: MacBook Pro 2017 código 43, A1707 Radeon Pro 560 erro 43, Boot Camp tela quebrada placa de vídeo, Radeon Pro 555 código 43 Windows 10, Windows 11 Radeon Pro 560 não funciona, MacBook Pro sem tela Windows, MacBook headless Boot Camp, eDP removido driver AMD, patch VFCT, VBIOS ATOM, OpenCore Boot Camp GPU, Warframe no MacBook Pro.
+Palavras-chave: MacBook Pro 2017 código 43, A1707 Radeon Pro 560 erro 43, Boot Camp tela quebrada placa de vídeo, Radeon Pro 555 código 43 Windows 10, Windows 11 Radeon Pro 560 não funciona, MacBook Pro sem tela Windows, MacBook headless Boot Camp, eDP removido driver AMD, patch VFCT, VBIOS ATOM, OpenCore Boot Camp GPU, Warframe no MacBook Pro, Touch Bar não funciona no Windows, ESC sumiu Boot Camp, toque para clicar do trackpad reseta ao reiniciar, clique direito Boot Camp não funciona, rolagem com dois dedos muito rápida, Boot Camp trackpad configuração perdida.
 
 > ⚠️ **AVISO — USE POR SUA CONTA E RISCO.** Você altera tabelas de firmware carregadas pelo bootloader. Uma config errada pode impedir o boot. Tenha um pendrive de recuperação e backup do `config.plist`. Sem garantia ([LICENSE](LICENSE)). Sem vínculo com Apple ou AMD.
 
@@ -41,6 +41,7 @@ Palavras-chave: MacBook Pro 2017 código 43, A1707 Radeon Pro 560 erro 43, Boot 
 **A VBIOS vem no repositório?** Não. É protegida por direitos autorais da AMD/Apple; o script modifica o *seu próprio* dump.
 **Afeta o macOS?** O OpenCore injeta as tabelas para todos os sistemas. O macOS não usa a VFCT nessa GPU, mas o boot do macOS com o patch ainda não foi reverificado — teste.
 **Dá pra jogar?** Sim — a motivação foi rodar Warframe (DirectX 11/12) num A1707 sem tela.
+**Launcher do Warframe: "Could not create directory C:\Program Files\Warframe"?** Dê permissão de Modificar ao seu usuário (admin): `icacls "C:\Program Files\Warframe" /grant "%USERNAME%":(OI)(CI)M`.
 **Ímã no sensor da tampa resolve?** Não nos nossos testes (override de `_LID` e chaves DAL no registro também falharam).
 
 ## Solução de problemas
@@ -49,6 +50,27 @@ Palavras-chave: MacBook Pro 2017 código 43, A1707 Radeon Pro 560 erro 43, Boot 
 - **Mac não inicia / maçã branca**: use o pendrive de recuperação (Option → "EFI Boot") e restaure o backup; ou no macOS `sudo diskutil mount disk0s1` e copie o backup de volta.
 - **Monitor 4K externo a ~30 Hz**: provável limite do cabo/adaptador/porta. Use cabo USB-C→DP ou 1440p/1080p a 60 Hz.
 - **Tela preta no seletor de boot**: no OpenCore, `UEFI > Output > Resolution` (ex.: `1920x1080@32`) e `ForceResolution`.
+
+## Pós-instalação: Touch Bar e trackpad no Boot Camp
+Verificado em 21/10/2026 no mesmo A1707 sem tela (Windows 10 22H2, Boot Camp 6.1). Correção da Radeon confirmada com o Warframe baixando e rodando no driver AMD.
+
+### Touch Bar não funciona no Windows / tecla ESC sumiu
+- Os drivers oficiais do Boot Camp 6.1 estavam instalados e OK: **Apple Touch Bar** (`appledfr.inf` 6.1.6500.0), **Apple USB Composite Device 05AC:8600** (chip T1), teclado/trackpad SPI 6.1.6700.0.
+- Causa: o **`Bootcamp.exe` (app da bandeja do Boot Camp) não estava rodando**. É ele que controla a Touch Bar (teclas de função / ESC).
+- Solução: reinicie o `Bootcamp.exe` e depois o dispositivo composto do T1 (`pnputil /restart-device "<instance id de USB\VID_05AC&PID_8600...>"`). Touch Bar e ESC voltaram **mesmo com a tela interna removida**.
+
+### Toque para clicar / clique direito (clique secundário) do trackpad resetam após reiniciar
+- O Boot Camp guarda essas opções só em `HKCU\Software\Apple Inc.\Trackpad\Mode` (DWORD, bits não documentados).
+- Configure em `C:\Windows\System32\AppleControlPanel.exe` → Trackpad e leia o valor: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (o nosso: `40`).
+- Reaplique a cada logon com o [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) (grava `Mode`, reinicia o `Bootcamp.exe` em até 5 tentativas) numa Tarefa Agendada com atraso de 10 s e 3 novas tentativas. Exemplo (copie o script para `C:\Tools\`, rode como admin, troque `<usuario>`):
+```powershell
+schtasks /Create /TN "BootCampReapply" /RU "<usuario>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
+  /TR "powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File C:\Tools\bootcamp-reapply.ps1 -Mode 40"
+```
+Depois, no Agendador de Tarefas → tarefa → Configurações: "Se a tarefa falhar, reiniciar a cada 1 minuto", "Tentar reiniciar até 3 vezes" (ou use `Register-ScheduledTask` com `New-ScheduledTaskSettingsSet -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)`).
+
+### Rolagem com dois dedos rápida demais
+`HKCU\Control Panel\Desktop\WheelScrollLines` de `3` para `1`, aplicado na hora com `SystemParametersInfo(SPI_SETWHEELSCROLLLINES = 0x69, 1, NULL, SPIF_UPDATEINIFILE|SPIF_SENDCHANGE)`. O script faz isso com `-WheelScrollLines 1`.
 
 ## Créditos
 **Ryan Anthony Gibo** — autor, descobridor da causa raiz e da correção, testes no hardware. Agradecimentos aos projetos ACPICA, OpenCore (Acidanthera) e OpenCore Legacy Patcher. Ajudou? Deixe uma ⭐ e cite via [CITATION.cff](CITATION.cff).

@@ -132,5 +132,26 @@ No `Drivers`, `Booter` or `NVRAM` changes. Full snippet: [`opencore/config-snipp
 ## 10. Conclusion
 Code 43 on a screenless A1707 is not a driver bug but a platform-description mismatch: the VBIOS promises an eDP panel that no longer exists, and the AMD display core fails the adapter when it can't bring it up. Editing the VBIOS copy in the VFCT table — not ACPI devices, registry keys, or drivers — fixes it in software, reversibly.
 
+## Appendix A — Post-install: Touch Bar & trackpad on Boot Camp
+Verified on 2026-10-21 on the same headless A1707 (Windows 10 22H2, Boot Camp 6.1). Radeon fix confirmed with Warframe downloading and running on the AMD driver.
+
+### Touch Bar not working in Windows / ESC key missing
+- Official Boot Camp 6.1 drivers were installed and healthy: **Apple Touch Bar** (`appledfr.inf` 6.1.6500.0), **Apple USB Composite Device 05AC:8600** (T1 chip), SPI keyboard/trackpad 6.1.6700.0.
+- Cause: **`Bootcamp.exe` (Boot Camp tray app) was not running**. It drives the Touch Bar (function keys / ESC).
+- Fix: restart `Bootcamp.exe`, then restart the T1 composite device (`pnputil /restart-device "<instance id of USB\VID_05AC&PID_8600...>"`). Touch Bar and ESC came back **even with the internal panel removed**.
+
+### Boot Camp trackpad tap to click / right click (secondary click) resets after reboot
+- Boot Camp keeps these options only in `HKCU\Software\Apple Inc.\Trackpad\Mode` (DWORD, undocumented bit field).
+- Set them in `C:\Windows\System32\AppleControlPanel.exe` → Trackpad, then read the value: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (ours: `40`).
+- Re-apply at every logon with [`scripts/bootcamp-reapply.ps1`](../scripts/bootcamp-reapply.ps1) (writes `Mode`, restarts `Bootcamp.exe` up to 5 tries) from a Scheduled Task with a 10 s delay and 3 retries. Example (copy the script to `C:\Tools\`, run as admin, replace `<user>`):
+```powershell
+schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
+  /TR "powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File C:\Tools\bootcamp-reapply.ps1 -Mode 40"
+```
+Then in Task Scheduler → task → Settings: "If the task fails, restart every 1 minute", "Attempt to restart up to 3 times" (schtasks can't set retries from the command line; or use `Register-ScheduledTask` with `New-ScheduledTaskSettingsSet -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)`).
+
+### Two-finger scroll too fast
+`HKCU\Control Panel\Desktop\WheelScrollLines` from `3` to `1`, applied live with `SystemParametersInfo(SPI_SETWHEELSCROLLLINES = 0x69, 1, NULL, SPIF_UPDATEINIFILE|SPIF_SENDCHANGE)`. The script does it with `-WheelScrollLines 1`.
+
 ## Credits & citation
 Research, discovery and testing: **Ryan Anthony Gibo**. Tools: ACPICA, OpenCore (Acidanthera), OpenCore Legacy Patcher. Cite via [`CITATION.cff`](../CITATION.cff).

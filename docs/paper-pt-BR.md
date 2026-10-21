@@ -132,5 +132,26 @@ Sem mudanças em `Drivers`, `Booter` ou `NVRAM`. Snippet completo: [`opencore/co
 ## 10. Conclusão
 O Código 43 num A1707 sem tela não é bug de driver, e sim uma descrição de plataforma errada: a VBIOS promete um painel eDP que não existe mais, e o driver AMD derruba o adaptador ao não conseguir ativá-lo. Editar a cópia da VBIOS na tabela VFCT — e não dispositivos ACPI, registro ou drivers — resolve por software, de forma reversível.
 
+## Apêndice A — Pós-instalação: Touch Bar e trackpad no Boot Camp
+Verificado em 21/10/2026 no mesmo A1707 sem tela (Windows 10 22H2, Boot Camp 6.1). Correção da Radeon confirmada com o Warframe baixando e rodando no driver AMD.
+
+### Touch Bar não funciona no Windows / tecla ESC sumiu
+- Os drivers oficiais do Boot Camp 6.1 estavam instalados e OK: **Apple Touch Bar** (`appledfr.inf` 6.1.6500.0), **Apple USB Composite Device 05AC:8600** (chip T1), teclado/trackpad SPI 6.1.6700.0.
+- Causa: o **`Bootcamp.exe` (app da bandeja do Boot Camp) não estava rodando**. É ele que controla a Touch Bar (teclas de função / ESC).
+- Solução: reinicie o `Bootcamp.exe` e depois o dispositivo composto do T1 (`pnputil /restart-device "<instance id de USB\VID_05AC&PID_8600...>"`). Touch Bar e ESC voltaram **mesmo com a tela interna removida**.
+
+### Toque para clicar / clique direito (clique secundário) do trackpad resetam após reiniciar
+- O Boot Camp guarda essas opções só em `HKCU\Software\Apple Inc.\Trackpad\Mode` (DWORD, bits não documentados).
+- Configure em `C:\Windows\System32\AppleControlPanel.exe` → Trackpad e leia o valor: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (o nosso: `40`).
+- Reaplique a cada logon com o [`scripts/bootcamp-reapply.ps1`](../scripts/bootcamp-reapply.ps1) (grava `Mode`, reinicia o `Bootcamp.exe` em até 5 tentativas) numa Tarefa Agendada com atraso de 10 s e 3 novas tentativas. Exemplo (copie o script para `C:\Tools\`, rode como admin, troque `<usuario>`):
+```powershell
+schtasks /Create /TN "BootCampReapply" /RU "<usuario>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
+  /TR "powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File C:\Tools\bootcamp-reapply.ps1 -Mode 40"
+```
+Depois, no Agendador de Tarefas → tarefa → Configurações: "Se a tarefa falhar, reiniciar a cada 1 minuto", "Tentar reiniciar até 3 vezes" (ou use `Register-ScheduledTask` com `New-ScheduledTaskSettingsSet -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)`).
+
+### Rolagem com dois dedos rápida demais
+`HKCU\Control Panel\Desktop\WheelScrollLines` de `3` para `1`, aplicado na hora com `SystemParametersInfo(SPI_SETWHEELSCROLLLINES = 0x69, 1, NULL, SPIF_UPDATEINIFILE|SPIF_SENDCHANGE)`. O script faz isso com `-WheelScrollLines 1`.
+
 ## Créditos e citação
 Pesquisa, descoberta e testes: **Ryan Anthony Gibo**. Ferramentas: ACPICA, OpenCore (Acidanthera), OpenCore Legacy Patcher. Cite via [`CITATION.cff`](../CITATION.cff).

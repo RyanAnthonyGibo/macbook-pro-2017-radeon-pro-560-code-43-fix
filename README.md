@@ -6,7 +6,7 @@
 
 Is your **MacBook Pro 15" 2017 (A1707, MacBookPro14,3)** with an **AMD Radeon Pro 560 or Radeon Pro 555** showing **"Windows has stopped this device because it has reported problems. (Code 43)"** in Device Manager? Is the **internal display (LCD / eDP panel) broken, cracked, disconnected or removed**, and you run the Mac **headless / clamshell with an external monitor** (USB-C, Thunderbolt 3, HDMI, DisplayPort)? Then the **AMD driver (Boot Camp, Adrenalin, Radeon Pro Software)** fails because the **VBIOS still declares the internal eDP panel**. This repo fixes it: patch the **ACPI VFCT table** (the VBIOS copy Windows reads) to remove the eDP connector, and inject it with **OpenCore** `ACPI > Delete + Add`. Result: Radeon Pro 560 works with full **4 GB VRAM, DirectX 11/12 and hardware acceleration** — no more "Microsoft Basic Display Adapter".
 
-Keywords: MacBook Pro 2017 Code 43, A1707 Radeon Pro 560 Code 43, Boot Camp Code 43 broken screen, Radeon Pro 555 Code 43 Windows 10, Windows 11 Radeon Pro 560 not working, MacBook Pro without screen Windows GPU, headless MacBook Pro Boot Camp, eDP removed AMD driver, VFCT patch, VBIOS ATOM object table, OpenCore Boot Camp GPU, CM_PROB_FAILED_POST_START, amdkmdag.sys DeviceRemoval, Warframe on MacBook Pro.
+Keywords: MacBook Pro 2017 Code 43, A1707 Radeon Pro 560 Code 43, Boot Camp Code 43 broken screen, Radeon Pro 555 Code 43 Windows 10, Windows 11 Radeon Pro 560 not working, MacBook Pro without screen Windows GPU, headless MacBook Pro Boot Camp, eDP removed AMD driver, VFCT patch, VBIOS ATOM object table, OpenCore Boot Camp GPU, CM_PROB_FAILED_POST_START, amdkmdag.sys DeviceRemoval, Warframe on MacBook Pro, Touch Bar not working Windows, Boot Camp Touch Bar ESC missing, Boot Camp trackpad tap to click resets after reboot, Boot Camp right click / secondary click not working after restart, two-finger scroll too fast Windows Boot Camp, AppleControlPanel trackpad.
 
 > ⚠️ **DISCLAIMER — USE AT YOUR OWN RISK.** You modify firmware tables loaded by your bootloader. A wrong config can stop the Mac from booting. Keep a recovery USB and a backup of `config.plist`. No warranty (see [LICENSE](LICENSE)). Not affiliated with Apple or AMD.
 
@@ -41,6 +41,7 @@ Keywords: MacBook Pro 2017 Code 43, A1707 Radeon Pro 560 Code 43, Boot Camp Code
 **Is my VBIOS shipped here?** No. VBIOS/VFCT binaries are AMD/Apple copyrighted; the script patches *your own* dump.
 **Does it affect macOS?** OpenCore injects ACPI tables for every OS. macOS does not use VFCT for this GPU, but re-verification of macOS with the patch is still pending — test it.
 **Can I play games?** Yes — the fix was motivated by running Warframe (DirectX 11/12) on a screenless A1707.
+**Warframe launcher: "Could not create directory C:\Program Files\Warframe"?** Grant your user Modify on the folder (admin): `icacls "C:\Program Files\Warframe" /grant "%USERNAME%":(OI)(CI)M`.
 **Would a magnet on the lid sensor fix it?** Not in our tests (ACPI `_LID` override and DAL registry keys also failed).
 
 ## Troubleshooting
@@ -50,11 +51,33 @@ Keywords: MacBook Pro 2017 Code 43, A1707 Radeon Pro 560 Code 43, Boot Camp Code
 - **External 4K monitor at ~30 Hz**: likely cable/adapter/port limit (HDMI 1.4 adapters). Use a USB-C→DP cable or 1440p/1080p @ 60 Hz.
 - **Black screen at the boot picker**: set OpenCore `UEFI > Output > Resolution` (e.g. `1920x1080@32`) and `ForceResolution`.
 
+## Post-install: Touch Bar & trackpad on Boot Camp
+Verified on 2026-10-21 on the same headless A1707 (Windows 10 22H2, Boot Camp 6.1). Radeon fix confirmed with Warframe downloading and running on the AMD driver.
+
+### Touch Bar not working in Windows / ESC key missing
+- Official Boot Camp 6.1 drivers were installed and healthy: **Apple Touch Bar** (`appledfr.inf` 6.1.6500.0), **Apple USB Composite Device 05AC:8600** (T1 chip), SPI keyboard/trackpad 6.1.6700.0.
+- Cause: **`Bootcamp.exe` (Boot Camp tray app) was not running**. It drives the Touch Bar (function keys / ESC).
+- Fix: restart `Bootcamp.exe`, then restart the T1 composite device (`pnputil /restart-device "<instance id of USB\VID_05AC&PID_8600...>"`). Touch Bar and ESC came back **even with the internal panel removed**.
+
+### Boot Camp trackpad tap to click / right click (secondary click) resets after reboot
+- Boot Camp keeps these options only in `HKCU\Software\Apple Inc.\Trackpad\Mode` (DWORD, undocumented bit field).
+- Set them in `C:\Windows\System32\AppleControlPanel.exe` → Trackpad, then read the value: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (ours: `40`).
+- Re-apply at every logon with [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) (writes `Mode`, restarts `Bootcamp.exe` up to 5 tries) from a Scheduled Task with a 10 s delay and 3 retries. Example (copy the script to `C:\Tools\`, run as admin, replace `<user>`):
+```powershell
+schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
+  /TR "powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File C:\Tools\bootcamp-reapply.ps1 -Mode 40"
+```
+Then in Task Scheduler → task → Settings: "If the task fails, restart every 1 minute", "Attempt to restart up to 3 times" (schtasks can't set retries from the command line; or use `Register-ScheduledTask` with `New-ScheduledTaskSettingsSet -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)`).
+
+### Two-finger scroll too fast
+`HKCU\Control Panel\Desktop\WheelScrollLines` from `3` to `1`, applied live with `SystemParametersInfo(SPI_SETWHEELSCROLLLINES = 0x69, 1, NULL, SPIF_UPDATEINIFILE|SPIF_SENDCHANGE)`. The script does it with `-WheelScrollLines 1`.
+
 ## Repository contents
 | Path | What |
 |---|---|
 | `scripts/vfct-patch.py` | Removes eDP connector/encoder/LCD1 path, clears LCD1 support flag, sets SSID 106B:0179, fixes checksums |
 | `scripts/vfct-parse.py` | Parses VFCT + ATOM object table, verifies checksums |
+| `scripts/bootcamp-reapply.ps1` | Re-applies Boot Camp trackpad Mode + restarts Bootcamp.exe (Touch Bar) at logon |
 | `opencore/config-snippet.plist` | OpenCore `ACPI > Delete + Add` entries |
 | `docs/paper-en.md`, `docs/paper-pt-BR.md` | Full technical paper |
 
