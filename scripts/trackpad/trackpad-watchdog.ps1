@@ -13,6 +13,7 @@ $exe="C:\Program Files\Boot Camp\Bootcamp.exe"
 for($i=0;$i -lt 6;$i++){
   if(Get-Process Bootcamp -EA 0){ if($i){L "Bootcamp.exe running after $i tries"}; break }
   L "Bootcamp.exe not running -> starting (try $($i+1))"
-  Start-Process $exe; Start-Sleep 8
+  Start-Process explorer.exe -ArgumentList "`"$exe`""; # launch via Explorer = normal desktop context
+  Start-Sleep 8
 }
 if(-not (Get-Process Bootcamp -EA 0)){ L "FAILED to keep Bootcamp.exe running" }
