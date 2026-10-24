@@ -94,12 +94,16 @@ Keywords: MacBook Pro 2017 A1707 Windows 10 trackpad two-finger scroll not worki
 
 **Root cause:** on Boot Camp 6.1 the Apple SPI Trackpad driver (6.1.6700.0) stays installed and "OK", but gestures (two-finger scroll, two-finger tap right click, tap-to-click) are only applied while the tray app `C:\Program Files\Boot Camp\Bootcamp.exe` is running. Bootcamp.exe 6.1.6700 crashes randomly (Event Viewer → Application, Event 1000/1001 `BEX64`), and the Run key only starts it once at logon. When it dies, the trackpad falls back to basic pointer + click. Windows Update did not replace the driver.
 
-**Fix:** `scripts/trackpad/install.ps1` (no admin) creates the per-user task `A1707-TrackpadWatchdog`, which runs hidden at logon, unlock, resume from sleep, right after a Bootcamp.exe crash, and every 2 minutes. It re-applies `HKCU\Software\Apple Inc.\Trackpad\Mode` (40 = tap-to-click + secondary click), `WheelScrollLines=1`, and restarts Bootcamp.exe if missing. Log: `C:\Setup\trackpad\watchdog.log`.
+**Fix:** `scripts/trackpad/install.ps1` (no admin) creates the per-user task `A1707-TrackpadWatchdog`, which runs hidden at logon, unlock, resume from sleep, right after a Bootcamp.exe crash, and every 2 minutes. It re-applies the known-good `HKCU\Software\Apple Inc.\Trackpad\Mode` (ours: `43` / 0x2B) and restarts Bootcamp.exe if the value changed or the app is missing. Log: `C:\Setup\trackpad\watchdog.log`.
+
+**Manual fix (what actually brought gestures back):** open `C:\Windows\System32\AppleControlPanel.exe` → Trackpad, uncheck the boxes, click Apply, check them again (ours: Tap to click ON, Dragging ON, Drag lock OFF, Secondary click corner OFF, Two fingers → Secondary tap ON), Apply, OK. Then read `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` and put that value in `$GOOD` in `trackpad-watchdog.ps1`. Forcing the old value `40` was wrong and kept gestures off.
 
 ## Trackpad: rolagem / botão direito param de novo (solução definitiva)
 
 **Causa:** o driver Apple SPI Trackpad continua OK, mas os gestos (rolar com dois dedos, clique direito com dois dedos, tocar para clicar) só funcionam enquanto o `Bootcamp.exe` está rodando. O Bootcamp.exe 6.1.6700 trava sozinho (Evento 1000 `BEX64`) e só é iniciado uma vez no logon.
 
-**Solução:** rode `scripts/trackpad/install.ps1` (sem admin). A tarefa `A1707-TrackpadWatchdog` reinicia o Bootcamp.exe no logon, desbloqueio, volta da suspensão, logo após um crash e a cada 2 min, e reaplica Mode=40 e rolagem de 1 linha. Log em `C:\Setup\trackpad\watchdog.log`.
+**Solução:** rode `scripts/trackpad/install.ps1` (sem admin). A tarefa `A1707-TrackpadWatchdog` reinicia o Bootcamp.exe no logon, desbloqueio, volta da suspensão, logo após um crash e a cada 2 min, e reaplica o Mode bom conhecido (o nosso: `43`), reiniciando o Bootcamp.exe se o valor mudou. Log em `C:\Setup\trackpad\watchdog.log`.
+
+**Correção manual (o que realmente trouxe os gestos de volta):** abra `C:\Windows\System32\AppleControlPanel.exe` → Trackpad, desmarque as opções, Aplicar, marque de novo (o nosso: Tocar para clicar ON, Arrastar ON, Bloquear arrastar OFF, Clique secundário no canto OFF, Dois dedos → Toque secundário ON), Aplicar, OK. Depois leia o `Mode` e coloque em `$GOOD` no `trackpad-watchdog.ps1`. Forçar o valor antigo `40` estava errado.
 
 Credits / Créditos: Ryan Anthony Gibo.

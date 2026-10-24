@@ -1,5 +1,7 @@
 # Installs the A1707 trackpad watchdog as a per-user scheduled task (no admin needed).
 # Triggers: logon, unlock, resume from sleep, Bootcamp.exe crash (Application Error 1000), every 2 min.
+# Before installing: set the Boot Camp control panel Trackpad tab, click Apply, read
+# (Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode and put it in $GOOD in trackpad-watchdog.ps1.
 $d="C:\Setup\trackpad"; New-Item $d -ItemType Directory -Force | Out-Null
 Copy-Item "$PSScriptRoot\trackpad-watchdog.ps1","$PSScriptRoot\run-hidden.vbs" $d -Force
 $u="$env:USERDOMAIN\$env:USERNAME"
