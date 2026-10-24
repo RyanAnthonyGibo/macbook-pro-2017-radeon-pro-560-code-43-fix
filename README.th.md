@@ -70,7 +70,7 @@
 
 ### แตะเพื่อคลิก / คลิกรองของแทร็กแพดหายหลังรีสตาร์ท
 - Boot Camp เก็บตัวเลือกเหล่านี้ไว้ที่ `HKCU\Software\Apple Inc.\Trackpad\Mode` เท่านั้น (DWORD, บิตที่ไม่มีเอกสาร)
-- ตั้งค่าใน `C:\Windows\System32\AppleControlPanel.exe` → Trackpad แล้วอ่านค่า: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (ของเรา: `40`)
+- ตั้งค่าใน `C:\Windows\System32\AppleControlPanel.exe` → Trackpad แล้วอ่านค่า: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (ของเรา: `43`)
 - นำค่ากลับมาใช้ทุกครั้งที่ล็อกออนด้วย [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) (เขียน `Mode` และรีสตาร์ท `Bootcamp.exe` สูงสุด 5 ครั้ง) ผ่าน Scheduled Task ที่หน่วง 10 วินาทีและลองใหม่ 3 ครั้ง ตัวอย่าง (คัดลอกสคริปต์ไปที่ `C:\Tools\` รันแบบผู้ดูแลระบบ และแทน `<user>`):
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -94,3 +94,7 @@ schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON 
 **Ryan Anthony Gibo**: ผู้เขียน ผู้ค้นพบสาเหตุและวิธีแก้ ทดสอบบนฮาร์ดแวร์ ขอบคุณ ACPICA, OpenCore (Acidanthera) และ OpenCore Legacy Patcher มีประโยชน์ไหม? กด ⭐ และอ้างอิงผ่าน [CITATION.cff](CITATION.cff)
 
 สัญญาอนุญาต: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click--touch-bar-die-after-reboot-definitive-fix-tested-2026-10-24): Apple-only Boot Camp 6.1 reinstall (`scripts/bootcamp/`), AMD driver untouched, Fast Startup off, Mode=43 watchdog. By Ryan Anthony Gibo.

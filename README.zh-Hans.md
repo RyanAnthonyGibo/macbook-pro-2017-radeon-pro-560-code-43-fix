@@ -70,7 +70,7 @@
 
 ### 触控板“轻点来点按”/“辅助点按”重启后丢失
 - Boot Camp 只把这些选项保存在 `HKCU\Software\Apple Inc.\Trackpad\Mode`（DWORD，未公开的位）。
-- 在 `C:\Windows\System32\AppleControlPanel.exe` → Trackpad 中设置，然后读取数值：`(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode`（我们的是 `40`）。
+- 在 `C:\Windows\System32\AppleControlPanel.exe` → Trackpad 中设置，然后读取数值：`(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode`（我们的是 `43`）。
 - 每次登录时用 [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) 重新应用（写入 `Mode`，最多重试 5 次重启 `Bootcamp.exe`），通过延迟 10 秒、重试 3 次的计划任务运行。示例（把脚本复制到 `C:\Tools\`，以管理员运行，替换 `<user>`）：
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -94,3 +94,7 @@ schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON 
 **Ryan Anthony Gibo**：作者，根本原因与修复方法的发现者，实机测试。感谢 ACPICA、OpenCore（Acidanthera）和 OpenCore Legacy Patcher。有帮助的话请点 ⭐，并通过 [CITATION.cff](CITATION.cff) 引用。
 
 许可证: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click--touch-bar-die-after-reboot-definitive-fix-tested-2026-10-24): Apple-only Boot Camp 6.1 reinstall (`scripts/bootcamp/`), AMD driver untouched, Fast Startup off, Mode=43 watchdog. By Ryan Anthony Gibo.

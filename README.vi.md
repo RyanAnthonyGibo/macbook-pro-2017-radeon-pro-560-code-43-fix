@@ -70,7 +70,7 @@ Từ khóa: MacBook Pro 2017 lỗi code 43, A1707 Radeon Pro 560 lỗi mã 43, B
 
 ### Chạm để nhấp / nhấp phụ của trackpad bị mất sau khi khởi động lại
 - Boot Camp chỉ lưu các tùy chọn này trong `HKCU\Software\Apple Inc.\Trackpad\Mode` (DWORD, các bit không có tài liệu).
-- Đặt chúng trong `C:\Windows\System32\AppleControlPanel.exe` → Trackpad rồi đọc giá trị: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (của chúng tôi: `40`).
+- Đặt chúng trong `C:\Windows\System32\AppleControlPanel.exe` → Trackpad rồi đọc giá trị: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (của chúng tôi: `43`).
 - Áp dụng lại mỗi lần đăng nhập bằng [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) (ghi `Mode`, khởi động lại `Bootcamp.exe` tối đa 5 lần) qua Scheduled Task trễ 10 giây và thử lại 3 lần. Ví dụ (chép script vào `C:\Tools\`, chạy admin, thay `<user>`):
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -94,3 +94,7 @@ Sau đó trong Task Scheduler → Settings: "If the task fails, restart every 1 
 **Ryan Anthony Gibo**: tác giả, người tìm ra nguyên nhân và cách sửa, kiểm thử phần cứng. Cảm ơn ACPICA, OpenCore (Acidanthera) và OpenCore Legacy Patcher. Hữu ích? Hãy ⭐ và trích dẫn qua [CITATION.cff](CITATION.cff).
 
 Giấy phép: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click--touch-bar-die-after-reboot-definitive-fix-tested-2026-10-24): Apple-only Boot Camp 6.1 reinstall (`scripts/bootcamp/`), AMD driver untouched, Fast Startup off, Mode=43 watchdog. By Ryan Anthony Gibo.

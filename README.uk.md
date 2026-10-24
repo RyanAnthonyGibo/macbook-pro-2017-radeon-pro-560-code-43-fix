@@ -70,7 +70,7 @@
 
 ### Дотик для натискання / вторинний клік трекпада скидаються після перезавантаження
 - Boot Camp зберігає ці налаштування лише в `HKCU\Software\Apple Inc.\Trackpad\Mode` (DWORD, недокументовані біти).
-- Налаштуйте їх у `C:\Windows\System32\AppleControlPanel.exe` → Trackpad і прочитайте значення: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (у нас: `40`).
+- Налаштуйте їх у `C:\Windows\System32\AppleControlPanel.exe` → Trackpad і прочитайте значення: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (у нас: `43`).
 - Застосовуйте його під час кожного входу за допомогою [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) (записує `Mode`, перезапускає `Bootcamp.exe` до 5 спроб) із завдання Планувальника із затримкою 10 с і 3 повторами. Приклад (скопіюйте скрипт у `C:\Tools\`, від адміністратора, замініть `<user>`):
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -94,3 +94,7 @@ schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON 
 **Ryan Anthony Gibo**: автор, знайшов причину й виправлення, тести на залізі. Дякуємо ACPICA, OpenCore (Acidanthera) і OpenCore Legacy Patcher. Допомогло? Поставте ⭐ і цитуйте через [CITATION.cff](CITATION.cff).
 
 Ліцензія: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click--touch-bar-die-after-reboot-definitive-fix-tested-2026-10-24): Apple-only Boot Camp 6.1 reinstall (`scripts/bootcamp/`), AMD driver untouched, Fast Startup off, Mode=43 watchdog. By Ryan Anthony Gibo.

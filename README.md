@@ -63,7 +63,7 @@ Verified on 2026-10-21 on the same headless A1707 (Windows 10 22H2, Boot Camp 6.
 
 ### Boot Camp trackpad tap to click / right click (secondary click) resets after reboot
 - Boot Camp keeps these options only in `HKCU\Software\Apple Inc.\Trackpad\Mode` (DWORD, undocumented bit field).
-- Set them in `C:\Windows\System32\AppleControlPanel.exe` → Trackpad, then read the value: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (ours: `40`).
+- Set them in `C:\Windows\System32\AppleControlPanel.exe` → Trackpad, then read the value: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (ours: `43`).
 - Re-apply at every logon with [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) (writes `Mode`, restarts `Bootcamp.exe` up to 5 tries) from a Scheduled Task with a 10 s delay and 3 retries. Example (copy the script to `C:\Tools\`, run as admin, replace `<user>`):
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -87,3 +87,45 @@ Then in Task Scheduler → task → Settings: "If the task fails, restart every 
 **Ryan Anthony Gibo** — author, discoverer of the root cause and fix, hardware testing. Thanks to the ACPICA, OpenCore (Acidanthera) and OpenCore Legacy Patcher projects. If this helped you, ⭐ the repo and cite via [CITATION.cff](CITATION.cff).
 
 License: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad scroll / right click / Touch Bar die after reboot (definitive fix, tested 2026-10-24)
+
+Keywords: MacBook Pro 2017 A1707 Windows 10 trackpad two-finger scroll not working, Boot Camp right click stopped working, Touch Bar not working after reboot, Apple SPI Trackpad gestures lost after reboot or sleep, Bootcamp.exe crash, tap to click resets, KeyAgent MacHAL AppleOSSMgr missing.
+
+**Root cause:** Boot Camp had been *hand-copied* to `C:\Program Files\Boot Camp` instead of installed with Apple's MSI, so the Apple services **KeyAgent, MacHAL and AppleOSSMgr** were missing. Drivers showed "OK", but gestures and the Touch Bar only came up on some boots. Also, forcing `HKCU\Software\Apple Inc.\Trackpad\Mode=40` was wrong: the value written by the control panel for our settings is **43** (0x2B).
+
+**Fix (Apple-only Boot Camp 6.1.6851, AMD never touched):**
+1. Download Apple's official `BootCampESD.pkg` for MacBookPro14,3 (Apple catalog product 041-89072). Copy only the Apple pieces listed in `scripts/bootcamp/build-apple-only-msi.ps1` into `C:\Setup\bootcamp61` (never the `Drivers\AMD` folder; no Apple binaries are in this repo).
+2. Run `scripts/bootcamp/build-apple-only-msi.ps1` (no admin). It checks Apple's signature and builds `BootCampAppleOnly.msi`: a copy of `BootCamp.msi` with every non-Apple driver action, AppleDisplay and `SetVideoKeyInfo` removed.
+3. In an admin PowerShell: `powershell -ExecutionPolicy Bypass -File C:\Setup\bootcamp61\install-apple-only.ps1` (from `scripts/bootcamp/`). It backs up the Apple drivers, records the display driver read-only, installs the MSI, then the Apple SPI trackpad/keyboard/device and T1 drivers with `pnputil`, and **turns Fast Startup off**. It uninstalls nothing. The AMD/Radeon driver stayed the same (Radeon Pro 560, 30.0.13045.22003).
+4. Reboot. About 30 s after logon, scroll, right click, Touch Bar and keyboard backlight all work.
+5. Optional safety net: `scripts/trackpad/install.ps1` (no admin) installs the `A1707-TrackpadWatchdog` task (logon, unlock, resume from sleep, Bootcamp.exe crash, every 2 min). It keeps `Mode=43` and restarts Bootcamp.exe only when needed. Put your own value in `$GOOD`.
+
+**Manual quick fix:** `C:\Windows\System32\AppleControlPanel.exe` → Trackpad → uncheck the boxes, Apply, check them again, Apply, OK.
+
+**Known/harmless:** Bootcamp.exe 6.1 still crashes at shutdown (`BEZEL_WINDOW_NAME_IMAGE`). It does no harm.
+
+**Side effect, keyboard layout:** the install can switch the input to Portuguese (Brazil) ABNT (`ç` where `;` is). For US International on pt-BR, in PowerShell (no admin): `$l=New-WinUserLanguageList pt-BR; $l[0].InputMethodTips.Clear(); $l[0].InputMethodTips.Add('0416:00020409'); Set-WinUserLanguageList $l -Force; Set-WinDefaultInputMethodOverride '0416:00020409'`. Your external display resolution may also be reset; set it again in Settings.
+
+Verified working after a reboot on 2026-10-24.
+
+## Trackpad: rolagem / clique direito / Touch Bar param depois de reiniciar (solução definitiva, testada em 24/10/2026)
+
+**Causa:** o Boot Camp tinha sido *copiado na mão* para `C:\Program Files\Boot Camp` em vez de instalado pelo MSI da Apple. Assim, faltavam os serviços da Apple **KeyAgent, MacHAL e AppleOSSMgr**. Os drivers apareciam "OK", mas os gestos e a Touch Bar só funcionavam em alguns boots. Além disso, forçar `Mode=40` estava errado: o valor certo para as nossas configurações é **43** (0x2B).
+
+**Solução (Boot Camp 6.1.6851 só com peças da Apple, sem tocar no AMD):**
+1. Baixe o `BootCampESD.pkg` oficial da Apple para o MacBookPro14,3 (produto 041-89072 do catálogo da Apple). Copie para `C:\Setup\bootcamp61` só as peças da Apple listadas em `scripts/bootcamp/build-apple-only-msi.ps1` (nunca a pasta `Drivers\AMD`; este repositório não tem binários da Apple).
+2. Rode `scripts/bootcamp/build-apple-only-msi.ps1` (sem admin). Ele confere a assinatura da Apple e gera o `BootCampAppleOnly.msi`, sem as ações de drivers que não são da Apple, o AppleDisplay e o `SetVideoKeyInfo`.
+3. No PowerShell como admin: `powershell -ExecutionPolicy Bypass -File C:\Setup\bootcamp61\install-apple-only.ps1`. Ele faz backup dos drivers da Apple, só lê os dados do driver de vídeo, instala o MSI e os drivers SPI e T1 da Apple, e **desliga a Inicialização Rápida**. Não desinstala nada. O driver da AMD não mudou.
+4. Reinicie. Uns 30 s depois do logon, rolagem, clique direito, Touch Bar e luz do teclado funcionam.
+5. Rede de segurança opcional: `scripts/trackpad/install.ps1` (sem admin) instala o vigia, que mantém `Mode=43` e só reinicia o Bootcamp.exe quando precisa.
+
+**Correção manual rápida:** Painel de Controle do Boot Camp → Trackpad → desmarque, Aplicar, marque de novo, Aplicar, OK.
+
+**Conhecido e inofensivo:** o Bootcamp.exe 6.1 continua travando ao desligar (`BEZEL_WINDOW_NAME_IMAGE`). Não causa problema.
+
+**Efeito colateral, layout do teclado:** a instalação pode trocar a entrada para ABNT (`ç` no lugar do `;`). Para voltar a Estados Unidos-Internacional (sem admin): `$l=New-WinUserLanguageList pt-BR; $l[0].InputMethodTips.Clear(); $l[0].InputMethodTips.Add('0416:00020409'); Set-WinUserLanguageList $l -Force; Set-WinDefaultInputMethodOverride '0416:00020409'`. A resolução do monitor externo também pode voltar ao padrão.
+
+Verificado funcionando depois de reiniciar em 24/10/2026.
+
+Credits / Créditos: Ryan Anthony Gibo.

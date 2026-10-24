@@ -70,7 +70,7 @@
 
 ### トラックパッドの「タップでクリック」/「副ボタンのクリック」が再起動で消える
 - Boot Camp はこの設定を `HKCU\Software\Apple Inc.\Trackpad\Mode`（DWORD、非公開のビット）にしか保存しません。
-- `C:\Windows\System32\AppleControlPanel.exe` → Trackpad で設定し、値を読み取ります：`(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode`（私たちの値：`40`）。
+- `C:\Windows\System32\AppleControlPanel.exe` → Trackpad で設定し、値を読み取ります：`(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode`（私たちの値：`43`）。
 - ログオンのたびに [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1)（`Mode` を書き込み、`Bootcamp.exe` を最大 5 回再起動）で再適用します。遅延 10 秒・再試行 3 回のタスクスケジューラーを使用。例（スクリプトを `C:\Tools\` にコピー、管理者で実行、`<user>` を置換）：
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -94,3 +94,7 @@ schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON 
 **Ryan Anthony Gibo**：作者、根本原因と修正の発見者、実機テスト。ACPICA、OpenCore（Acidanthera）、OpenCore Legacy Patcher に感謝します。役に立ったら ⭐ を付け、[CITATION.cff](CITATION.cff) で引用してください。
 
 ライセンス: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click--touch-bar-die-after-reboot-definitive-fix-tested-2026-10-24): Apple-only Boot Camp 6.1 reinstall (`scripts/bootcamp/`), AMD driver untouched, Fast Startup off, Mode=43 watchdog. By Ryan Anthony Gibo.

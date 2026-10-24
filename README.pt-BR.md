@@ -63,7 +63,7 @@ Verificado em 21/10/2026 no mesmo A1707 sem tela (Windows 10 22H2, Boot Camp 6.1
 
 ### Toque para clicar / clique direito (clique secundário) do trackpad resetam após reiniciar
 - O Boot Camp guarda essas opções só em `HKCU\Software\Apple Inc.\Trackpad\Mode` (DWORD, bits não documentados).
-- Configure em `C:\Windows\System32\AppleControlPanel.exe` → Trackpad e leia o valor: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (o nosso: `40`).
+- Configure em `C:\Windows\System32\AppleControlPanel.exe` → Trackpad e leia o valor: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (o nosso: `43`).
 - Reaplique a cada logon com o [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) (grava `Mode`, reinicia o `Bootcamp.exe` em até 5 tentativas) numa Tarefa Agendada com atraso de 10 s e 3 novas tentativas. Exemplo (copie o script para `C:\Tools\`, rode como admin, troque `<usuario>`):
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<usuario>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -78,3 +78,22 @@ Depois, no Agendador de Tarefas → tarefa → Configurações: "Se a tarefa fal
 **Ryan Anthony Gibo** — autor, descobridor da causa raiz e da correção, testes no hardware. Agradecimentos aos projetos ACPICA, OpenCore (Acidanthera) e OpenCore Legacy Patcher. Ajudou? Deixe uma ⭐ e cite via [CITATION.cff](CITATION.cff).
 
 Licença: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+## Trackpad: rolagem / clique direito / Touch Bar param depois de reiniciar (solução definitiva, testada em 24/10/2026)
+
+**Causa:** o Boot Camp tinha sido *copiado na mão* para `C:\Program Files\Boot Camp` em vez de instalado pelo MSI da Apple. Assim, faltavam os serviços da Apple **KeyAgent, MacHAL e AppleOSSMgr**. Os drivers apareciam "OK", mas os gestos e a Touch Bar só funcionavam em alguns boots. Além disso, forçar `Mode=40` estava errado: o valor certo para as nossas configurações é **43** (0x2B).
+
+**Solução (Boot Camp 6.1.6851 só com peças da Apple, sem tocar no AMD):**
+1. Baixe o `BootCampESD.pkg` oficial da Apple para o MacBookPro14,3 (produto 041-89072 do catálogo da Apple). Copie para `C:\Setup\bootcamp61` só as peças da Apple listadas em `scripts/bootcamp/build-apple-only-msi.ps1` (nunca a pasta `Drivers\AMD`; este repositório não tem binários da Apple).
+2. Rode `scripts/bootcamp/build-apple-only-msi.ps1` (sem admin). Ele confere a assinatura da Apple e gera o `BootCampAppleOnly.msi`, sem as ações de drivers que não são da Apple, o AppleDisplay e o `SetVideoKeyInfo`.
+3. No PowerShell como admin: `powershell -ExecutionPolicy Bypass -File C:\Setup\bootcamp61\install-apple-only.ps1`. Ele faz backup dos drivers da Apple, só lê os dados do driver de vídeo, instala o MSI e os drivers SPI e T1 da Apple, e **desliga a Inicialização Rápida**. Não desinstala nada. O driver da AMD não mudou.
+4. Reinicie. Uns 30 s depois do logon, rolagem, clique direito, Touch Bar e luz do teclado funcionam.
+5. Rede de segurança opcional: `scripts/trackpad/install.ps1` (sem admin) instala o vigia, que mantém `Mode=43` e só reinicia o Bootcamp.exe quando precisa.
+
+**Correção manual rápida:** Painel de Controle do Boot Camp → Trackpad → desmarque, Aplicar, marque de novo, Aplicar, OK.
+
+**Conhecido e inofensivo:** o Bootcamp.exe 6.1 continua travando ao desligar (`BEZEL_WINDOW_NAME_IMAGE`). Não causa problema.
+
+**Efeito colateral, layout do teclado:** a instalação pode trocar a entrada para ABNT (`ç` no lugar do `;`). Para voltar a Estados Unidos-Internacional (sem admin): `$l=New-WinUserLanguageList pt-BR; $l[0].InputMethodTips.Clear(); $l[0].InputMethodTips.Add('0416:00020409'); Set-WinUserLanguageList $l -Force; Set-WinDefaultInputMethodOverride '0416:00020409'`. A resolução do monitor externo também pode voltar ao padrão.
+
+Verificado funcionando depois de reiniciar em 24/10/2026.
+
