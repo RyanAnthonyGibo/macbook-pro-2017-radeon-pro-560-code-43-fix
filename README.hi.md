@@ -70,7 +70,7 @@
 
 ### ट्रैकपैड tap to click / सेकेंडरी क्लिक रीस्टार्ट के बाद खो जाते हैं
 - Boot Camp ये विकल्प केवल `HKCU\Software\Apple Inc.\Trackpad\Mode` में रखता है (DWORD, अप्रलेखित बिट्स)।
-- इन्हें `C:\Windows\System32\AppleControlPanel.exe` → Trackpad में सेट करें और मान पढ़ें: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (हमारा: `40`)।
+- इन्हें `C:\Windows\System32\AppleControlPanel.exe` → Trackpad में सेट करें और मान पढ़ें: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (हमारा: `43`)।
 - हर लॉगऑन पर [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) से दोबारा लागू करें (`Mode` लिखता है, `Bootcamp.exe` को 5 प्रयासों तक रीस्टार्ट करता है), 10 सेकंड देरी और 3 पुनःप्रयासों वाले शेड्यूल्ड टास्क से। उदाहरण (स्क्रिप्ट को `C:\Tools\` में कॉपी करें, एडमिन के रूप में, `<user>` बदलें):
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -97,4 +97,4 @@ schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON 
 
 ## Trackpad watchdog (Bootcamp.exe crash fix)
 
-See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.
+See [README.md](README.md#trackpad-scroll--right-click--touch-bar-die-after-reboot-definitive-fix-tested-2026-10-24): Apple-only Boot Camp 6.1 reinstall (`scripts/bootcamp/`), AMD driver untouched, Fast Startup off, Mode=43 watchdog. By Ryan Anthony Gibo.

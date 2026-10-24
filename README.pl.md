@@ -70,7 +70,7 @@ Sprawdzone 21.10.2026 na tym samym A1707 bez ekranu (Windows 10 22H2, Boot Camp 
 
 ### Stuknięcie jako kliknięcie / kliknięcie dodatkowe gładzika znikają po restarcie
 - Boot Camp zapisuje te opcje tylko w `HKCU\Software\Apple Inc.\Trackpad\Mode` (DWORD, nieudokumentowane bity).
-- Ustaw je w `C:\Windows\System32\AppleControlPanel.exe` → Trackpad i odczytaj wartość: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (u nas: `40`).
+- Ustaw je w `C:\Windows\System32\AppleControlPanel.exe` → Trackpad i odczytaj wartość: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (u nas: `43`).
 - Przywracaj ją przy każdym logowaniu za pomocą [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) (zapisuje `Mode`, restartuje `Bootcamp.exe` do 5 prób) z zadania harmonogramu z opóźnieniem 10 s i 3 ponowieniami. Przykład (skopiuj skrypt do `C:\Tools\`, jako admin, zamień `<user>`):
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -97,4 +97,4 @@ Licencja: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
 
 ## Trackpad watchdog (Bootcamp.exe crash fix)
 
-See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.
+See [README.md](README.md#trackpad-scroll--right-click--touch-bar-die-after-reboot-definitive-fix-tested-2026-10-24): Apple-only Boot Camp 6.1 reinstall (`scripts/bootcamp/`), AMD driver untouched, Fast Startup off, Mode=43 watchdog. By Ryan Anthony Gibo.

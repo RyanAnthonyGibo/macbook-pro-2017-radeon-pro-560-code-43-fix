@@ -70,7 +70,7 @@ Anahtar kelimeler: MacBook Pro 2017 kod 43 hatası, A1707 Radeon Pro 560 kod 43,
 
 ### Trackpad dokunarak tıklama / ikincil tıklama yeniden başlatınca kayboluyor
 - Boot Camp bu seçenekleri yalnızca `HKCU\Software\Apple Inc.\Trackpad\Mode` içinde saklar (DWORD, belgelenmemiş bitler).
-- `C:\Windows\System32\AppleControlPanel.exe` → Trackpad'den ayarlayın ve değeri okuyun: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (bizimki: `40`).
+- `C:\Windows\System32\AppleControlPanel.exe` → Trackpad'den ayarlayın ve değeri okuyun: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (bizimki: `43`).
 - Her oturum açılışında [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) ile yeniden uygulayın (`Mode` yazar, `Bootcamp.exe`'yi 5 denemeye kadar yeniden başlatır); 10 sn gecikmeli ve 3 yeniden denemeli bir zamanlanmış görevle. Örnek (betiği `C:\Tools\` içine kopyalayın, yönetici olarak, `<user>` değiştirin):
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -97,4 +97,4 @@ Lisans: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
 
 ## Trackpad watchdog (Bootcamp.exe crash fix)
 
-See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.
+See [README.md](README.md#trackpad-scroll--right-click--touch-bar-die-after-reboot-definitive-fix-tested-2026-10-24): Apple-only Boot Camp 6.1 reinstall (`scripts/bootcamp/`), AMD driver untouched, Fast Startup off, Mode=43 watchdog. By Ryan Anthony Gibo.

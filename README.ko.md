@@ -70,7 +70,7 @@
 
 ### 트랙패드 탭하여 클릭 / 보조 클릭이 재부팅 후 사라짐
 - Boot Camp는 이 옵션을 `HKCU\Software\Apple Inc.\Trackpad\Mode`(DWORD, 비공개 비트)에만 저장합니다.
-- `C:\Windows\System32\AppleControlPanel.exe` → Trackpad에서 설정한 뒤 값을 읽습니다: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (저희 값: `40`).
+- `C:\Windows\System32\AppleControlPanel.exe` → Trackpad에서 설정한 뒤 값을 읽습니다: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (저희 값: `43`).
 - 로그온할 때마다 [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1)로 다시 적용합니다(`Mode` 기록, `Bootcamp.exe` 최대 5회 재시작). 10초 지연과 3회 재시도의 예약 작업을 사용합니다. 예시(스크립트를 `C:\Tools\`에 복사, 관리자 권한, `<user>` 교체):
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -97,4 +97,4 @@ schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON 
 
 ## Trackpad watchdog (Bootcamp.exe crash fix)
 
-See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.
+See [README.md](README.md#trackpad-scroll--right-click--touch-bar-die-after-reboot-definitive-fix-tested-2026-10-24): Apple-only Boot Camp 6.1 reinstall (`scripts/bootcamp/`), AMD driver untouched, Fast Startup off, Mode=43 watchdog. By Ryan Anthony Gibo.

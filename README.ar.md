@@ -70,7 +70,7 @@
 
 ### النقر باللمس / النقر الثانوي في لوحة اللمس يضيعان بعد إعادة التشغيل
 - يحفظ Boot Camp هذه الخيارات فقط في `HKCU\Software\Apple Inc.\Trackpad\Mode` (DWORD، بتات غير موثقة).
-- اضبطها في `C:\Windows\System32\AppleControlPanel.exe` → Trackpad ثم اقرأ القيمة: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (قيمتنا: `40`).
+- اضبطها في `C:\Windows\System32\AppleControlPanel.exe` → Trackpad ثم اقرأ القيمة: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (قيمتنا: `43`).
 - أعد تطبيقها عند كل تسجيل دخول باستخدام [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) (يكتب `Mode` ويعيد تشغيل `Bootcamp.exe` حتى 5 محاولات) من مهمة مجدولة بتأخير 10 ثوانٍ و 3 إعادات. مثال (انسخ السكربت إلى `C:\Tools\`، كمسؤول، واستبدل `<user>`):
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -97,4 +97,4 @@ schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON 
 
 ## Trackpad watchdog (Bootcamp.exe crash fix)
 
-See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.
+See [README.md](README.md#trackpad-scroll--right-click--touch-bar-die-after-reboot-definitive-fix-tested-2026-10-24): Apple-only Boot Camp 6.1 reinstall (`scripts/bootcamp/`), AMD driver untouched, Fast Startup off, Mode=43 watchdog. By Ryan Anthony Gibo.

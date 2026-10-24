@@ -70,7 +70,7 @@ Diverifikasi pada 21/10/2026 di A1707 tanpa layar yang sama (Windows 10 22H2, Bo
 
 ### Tap to click / klik sekunder trackpad hilang setelah restart
 - Boot Camp menyimpan opsi ini hanya di `HKCU\Software\Apple Inc.\Trackpad\Mode` (DWORD, bit tidak terdokumentasi).
-- Atur di `C:\Windows\System32\AppleControlPanel.exe` → Trackpad lalu baca nilainya: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (milik kami: `40`).
+- Atur di `C:\Windows\System32\AppleControlPanel.exe` → Trackpad lalu baca nilainya: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (milik kami: `43`).
 - Terapkan ulang setiap logon dengan [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) (menulis `Mode`, restart `Bootcamp.exe` hingga 5 kali) lewat Scheduled Task dengan jeda 10 detik dan 3 percobaan ulang. Contoh (salin skrip ke `C:\Tools\`, sebagai admin, ganti `<user>`):
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -97,4 +97,4 @@ Lisensi: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
 
 ## Trackpad watchdog (Bootcamp.exe crash fix)
 
-See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.
+See [README.md](README.md#trackpad-scroll--right-click--touch-bar-die-after-reboot-definitive-fix-tested-2026-10-24): Apple-only Boot Camp 6.1 reinstall (`scripts/bootcamp/`), AMD driver untouched, Fast Startup off, Mode=43 watchdog. By Ryan Anthony Gibo.

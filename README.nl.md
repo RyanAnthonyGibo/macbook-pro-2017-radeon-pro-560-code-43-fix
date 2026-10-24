@@ -70,7 +70,7 @@ Geverifieerd op 21-10-2026 op dezelfde A1707 zonder scherm (Windows 10 22H2, Boo
 
 ### Tikken om te klikken / secundaire klik van de trackpad weg na herstart
 - Boot Camp bewaart deze opties alleen in `HKCU\Software\Apple Inc.\Trackpad\Mode` (DWORD, ongedocumenteerde bits).
-- Stel ze in via `C:\Windows\System32\AppleControlPanel.exe` → Trackpad en lees de waarde: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (bij ons: `40`).
+- Stel ze in via `C:\Windows\System32\AppleControlPanel.exe` → Trackpad en lees de waarde: `(Get-ItemProperty 'HKCU:\Software\Apple Inc.\Trackpad').Mode` (bij ons: `43`).
 - Pas hem bij elke aanmelding opnieuw toe met [`scripts/bootcamp-reapply.ps1`](scripts/bootcamp-reapply.ps1) (schrijft `Mode`, herstart `Bootcamp.exe` tot 5 pogingen) via een geplande taak met 10 s vertraging en 3 herhalingen. Voorbeeld (kopieer het script naar `C:\Tools\`, als beheerder, vervang `<user>`):
 ```powershell
 schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON /DELAY 0000:10 /F `
@@ -97,4 +97,4 @@ Licentie: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
 
 ## Trackpad watchdog (Bootcamp.exe crash fix)
 
-See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.
+See [README.md](README.md#trackpad-scroll--right-click--touch-bar-die-after-reboot-definitive-fix-tested-2026-10-24): Apple-only Boot Camp 6.1 reinstall (`scripts/bootcamp/`), AMD driver untouched, Fast Startup off, Mode=43 watchdog. By Ryan Anthony Gibo.
