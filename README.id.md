@@ -94,3 +94,7 @@ Ubah `HKCU\Control Panel\Desktop\WheelScrollLines` dari `3` ke `1`, langsung dit
 **Ryan Anthony Gibo**: penulis, penemu akar masalah dan solusi, pengujian hardware. Terima kasih kepada ACPICA, OpenCore (Acidanthera), dan OpenCore Legacy Patcher. Bermanfaat? Beri ⭐ dan kutip lewat [CITATION.cff](CITATION.cff).
 
 Lisensi: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.

@@ -78,3 +78,10 @@ Depois, no Agendador de Tarefas → tarefa → Configurações: "Se a tarefa fal
 **Ryan Anthony Gibo** — autor, descobridor da causa raiz e da correção, testes no hardware. Agradecimentos aos projetos ACPICA, OpenCore (Acidanthera) e OpenCore Legacy Patcher. Ajudou? Deixe uma ⭐ e cite via [CITATION.cff](CITATION.cff).
 
 Licença: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+## Trackpad: rolagem / botão direito param de novo (solução definitiva)
+
+**Causa:** o driver Apple SPI Trackpad continua OK, mas os gestos (rolar com dois dedos, clique direito com dois dedos, tocar para clicar) só funcionam enquanto o `Bootcamp.exe` está rodando. O Bootcamp.exe 6.1.6700 trava sozinho (Evento 1000 `BEX64`) e só é iniciado uma vez no logon.
+
+**Solução:** rode `scripts/trackpad/install.ps1` (sem admin). A tarefa `A1707-TrackpadWatchdog` reinicia o Bootcamp.exe no logon, desbloqueio, volta da suspensão, logo após um crash e a cada 2 min, e reaplica Mode=40 e rolagem de 1 linha. Log em `C:\Setup\trackpad\watchdog.log`.
+
+Credits / Créditos: Ryan Anthony Gibo.

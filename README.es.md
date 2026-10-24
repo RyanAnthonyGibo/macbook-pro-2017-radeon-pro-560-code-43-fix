@@ -94,3 +94,7 @@ Luego en el Programador de tareas → Configuración: "Si la tarea falla, reinic
 **Ryan Anthony Gibo**: autor, descubridor de la causa raíz y de la solución, pruebas en hardware. Gracias a ACPICA, OpenCore (Acidanthera) y OpenCore Legacy Patcher. ¿Te ayudó? Dale una ⭐ y cita con [CITATION.cff](CITATION.cff).
 
 Licencia: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.

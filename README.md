@@ -87,3 +87,19 @@ Then in Task Scheduler → task → Settings: "If the task fails, restart every 
 **Ryan Anthony Gibo** — author, discoverer of the root cause and fix, hardware testing. Thanks to the ACPICA, OpenCore (Acidanthera) and OpenCore Legacy Patcher projects. If this helped you, ⭐ the repo and cite via [CITATION.cff](CITATION.cff).
 
 License: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad scroll / right click stops working again (definitive fix)
+
+Keywords: MacBook Pro 2017 A1707 Windows 10 trackpad two-finger scroll not working, Boot Camp right click stopped working, Apple SPI Trackpad gestures lost after reboot or sleep, Bootcamp.exe crash BEX64, tap to click resets.
+
+**Root cause:** on Boot Camp 6.1 the Apple SPI Trackpad driver (6.1.6700.0) stays installed and "OK", but gestures (two-finger scroll, two-finger tap right click, tap-to-click) are only applied while the tray app `C:\Program Files\Boot Camp\Bootcamp.exe` is running. Bootcamp.exe 6.1.6700 crashes randomly (Event Viewer → Application, Event 1000/1001 `BEX64`), and the Run key only starts it once at logon. When it dies, the trackpad falls back to basic pointer + click. Windows Update did not replace the driver.
+
+**Fix:** `scripts/trackpad/install.ps1` (no admin) creates the per-user task `A1707-TrackpadWatchdog`, which runs hidden at logon, unlock, resume from sleep, right after a Bootcamp.exe crash, and every 2 minutes. It re-applies `HKCU\Software\Apple Inc.\Trackpad\Mode` (40 = tap-to-click + secondary click), `WheelScrollLines=1`, and restarts Bootcamp.exe if missing. Log: `C:\Setup\trackpad\watchdog.log`.
+
+## Trackpad: rolagem / botão direito param de novo (solução definitiva)
+
+**Causa:** o driver Apple SPI Trackpad continua OK, mas os gestos (rolar com dois dedos, clique direito com dois dedos, tocar para clicar) só funcionam enquanto o `Bootcamp.exe` está rodando. O Bootcamp.exe 6.1.6700 trava sozinho (Evento 1000 `BEX64`) e só é iniciado uma vez no logon.
+
+**Solução:** rode `scripts/trackpad/install.ps1` (sem admin). A tarefa `A1707-TrackpadWatchdog` reinicia o Bootcamp.exe no logon, desbloqueio, volta da suspensão, logo após um crash e a cada 2 min, e reaplica Mode=40 e rolagem de 1 linha. Log em `C:\Setup\trackpad\watchdog.log`.
+
+Credits / Créditos: Ryan Anthony Gibo.

@@ -94,3 +94,7 @@ Sau đó trong Task Scheduler → Settings: "If the task fails, restart every 1 
 **Ryan Anthony Gibo**: tác giả, người tìm ra nguyên nhân và cách sửa, kiểm thử phần cứng. Cảm ơn ACPICA, OpenCore (Acidanthera) và OpenCore Legacy Patcher. Hữu ích? Hãy ⭐ và trích dẫn qua [CITATION.cff](CITATION.cff).
 
 Giấy phép: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.

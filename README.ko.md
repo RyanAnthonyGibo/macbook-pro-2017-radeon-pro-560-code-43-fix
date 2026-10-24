@@ -94,3 +94,7 @@ schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON 
 **Ryan Anthony Gibo**: 작성자, 근본 원인과 해결책 발견, 실기기 테스트. ACPICA, OpenCore(Acidanthera), OpenCore Legacy Patcher에 감사드립니다. 도움이 되었다면 ⭐를 누르고 [CITATION.cff](CITATION.cff)로 인용해 주세요.
 
 라이선스: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.

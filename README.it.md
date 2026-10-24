@@ -94,3 +94,7 @@ Poi in Utilità di pianificazione → Impostazioni: "Se l'attività non riesce, 
 **Ryan Anthony Gibo**: autore, scopritore della causa e della soluzione, test sull'hardware. Grazie ad ACPICA, OpenCore (Acidanthera) e OpenCore Legacy Patcher. Ti è stato utile? Lascia una ⭐ e cita con [CITATION.cff](CITATION.cff).
 
 Licenza: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.

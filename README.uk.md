@@ -94,3 +94,7 @@ schtasks /Create /TN "BootCampReapply" /RU "<user>" /IT /RL HIGHEST /SC ONLOGON 
 **Ryan Anthony Gibo**: автор, знайшов причину й виправлення, тести на залізі. Дякуємо ACPICA, OpenCore (Acidanthera) і OpenCore Legacy Patcher. Допомогло? Поставте ⭐ і цитуйте через [CITATION.cff](CITATION.cff).
 
 Ліцензія: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.

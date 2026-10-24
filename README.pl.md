@@ -94,3 +94,7 @@ Następnie w Harmonogramie zadań → Ustawienia: „Jeśli zadanie się nie pow
 **Ryan Anthony Gibo**: autor, odkrywca przyczyny i poprawki, testy na sprzęcie. Podziękowania dla ACPICA, OpenCore (Acidanthera) i OpenCore Legacy Patcher. Pomogło? Daj ⭐ i cytuj przez [CITATION.cff](CITATION.cff).
 
 Licencja: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.

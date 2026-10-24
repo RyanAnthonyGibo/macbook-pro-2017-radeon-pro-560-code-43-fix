@@ -94,3 +94,7 @@ Sonra Görev Zamanlayıcı → Ayarlar: "Görev başarısız olursa her 1 dakika
 **Ryan Anthony Gibo**: yazar, kök nedeni ve çözümü bulan, donanım testleri. ACPICA, OpenCore (Acidanthera) ve OpenCore Legacy Patcher'a teşekkürler. İşinize yaradı mı? ⭐ verin ve [CITATION.cff](CITATION.cff) ile atıf yapın.
 
 Lisans: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.

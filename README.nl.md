@@ -94,3 +94,7 @@ Daarna in Taakplanner → Instellingen: "Als de taak mislukt, elke 1 minuut opni
 **Ryan Anthony Gibo**: auteur, ontdekker van de oorzaak en de oplossing, hardwaretests. Dank aan ACPICA, OpenCore (Acidanthera) en OpenCore Legacy Patcher. Geholpen? Geef een ⭐ en citeer via [CITATION.cff](CITATION.cff).
 
 Licentie: [MIT](LICENSE) © 2026 Ryan Anthony Gibo.
+
+## Trackpad watchdog (Bootcamp.exe crash fix)
+
+See [README.md](README.md#trackpad-scroll--right-click-stops-working-again-definitive-fix) and `scripts/trackpad/install.ps1`. By Ryan Anthony Gibo.
